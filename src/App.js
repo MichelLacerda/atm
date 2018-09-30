@@ -1,22 +1,48 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
+import { BrowserRouter, Route, Switch, NavLink } from "react-router-dom";
+import urls from "./urls";
 import './App.css';
+import Cassegrain from "./components/Cassegrain";
 
-import { Button } from "reactstrap";
+const Home = () => {
+  return (
+    <div>Home</div>
+  );
+}
+
+const Navigation = () => {
+  return (
+    <nav className="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+      <a className="navbar-brand" href="">ATM - Amateur Telescope Making</a>
+      <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+        <span className="navbar-toggler-icon"></span>
+      </button>
+      <div className="collapse navbar-collapse" id="navbarText">
+        <ul className="navbar-nav mr-auto">
+          <li className="nav-item active">
+            <NavLink to={urls.home} className="nav-link">Home</NavLink>
+          </li>
+          <li className="nav-item">
+            <NavLink to={urls.cassagrain} className="nav-link">Cassagrain</NavLink>
+          </li>
+        </ul>
+      </div>
+    </nav>
+  );
+}
 
 class App extends Component {
   render() {
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Welcome to React</h1>
-        </header>
-        <p className="App-intro">
-          To get started, edit <code>src/App.js</code> and save to reload.
-        </p>
-        <Button color="danger">Danger</Button>
-      </div>
+      <BrowserRouter>
+        <React.Fragment>
+          <Navigation />  
+          <Switch>
+            <Route path={urls.home} component={Home} exact />
+            <Route path={urls.cassagrain} component={Cassegrain} />
+          </Switch>
+        </React.Fragment>
+      </BrowserRouter>
     );
   }
 }
