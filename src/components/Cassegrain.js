@@ -1,6 +1,15 @@
 import React, { Component } from 'react';
 import CassegrainDesenho from "../assets/imgs/j_23_06.gif";
 
+function sagitta(r, l) {
+    /* s = r - sqrt(r^2 - l^2)
+        s = Sagitta
+        r = Raio da curvatura (2 * F)
+        l = Metade do diametro da superficie (D/2)
+    */
+    return Math.round(100 * (r - Math.sqrt(Math.pow(r, 2) - Math.pow(l, 2)))) / 100;
+}
+
 export default class Cassegrain extends Component {
     constructor(props) {
         super(props);
@@ -19,6 +28,7 @@ export default class Cassegrain extends Component {
             d2: 0,
             r2: 0,
             tx: 0,
+            s1: 0,
         }
 
         this.state = this.defaultState;
@@ -41,6 +51,8 @@ export default class Cassegrain extends Component {
         var d2   = Math.round(((this.state.d1 * p1) / (this.state.f1)) + this.state.dc * 1);
         var r2   = Math.round((2 * p1 * this.state.g) / (1 * this.state.g - 1));
         var tx   = Math.round(100 * d2 / this.state.d1) / 100;
+        var s1    = sagitta(this.state.f1*2, this.state.d1/2)
+        var s2    = sagitta(p2*2, d2/2)
 
         this.setState({
             f1d1: f1d1,
@@ -50,7 +62,9 @@ export default class Cassegrain extends Component {
             p2: p2,
             d2: d2,
             r2: r2,
-            tx: tx
+            tx: tx,
+            s1: s1,
+            s2: s2,
         });
     }
 
@@ -101,7 +115,7 @@ export default class Cassegrain extends Component {
                                     <td><input name="e" value={this.state.e} onChange={this.onChangeField} className="form-control" /></td>
                                 </tr>
                                 <tr>
-                                    <td>Valor de <b>g</b> (&gamma;)</td>
+                                    <td>Valor de <b>g</b> (ɣ)</td>
                                     <td><input name="g" value={this.state.g} onChange={this.onChangeField} className="form-control" /></td>
                                 </tr>
                             </tbody>
@@ -151,6 +165,14 @@ export default class Cassegrain extends Component {
                                 <tr>
                                     <td>Taxa de obstrução do secundário; Tx</td>
                                     <td>{this.state.tx}</td>
+                                </tr>
+                                <tr>
+                                    <td>Sagitta; S1 (mm)</td>
+                                    <td>{this.state.s1}</td>
+                                </tr>
+                                <tr>
+                                    <td>Sagitta; S2 (mm)</td>
+                                    <td>{this.state.s2}</td>
                                 </tr>
                             </tbody>
                         </table>
