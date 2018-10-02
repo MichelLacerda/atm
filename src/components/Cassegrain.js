@@ -1,14 +1,56 @@
 import React, { Component } from 'react';
 import CassegrainDesenho from "../assets/imgs/j_23_06.gif";
 
-function sagitta(r, l) {
+export function round(x, size) {
+    switch (size) {
+        case 1:
+            return Math.round(x * 10) / 10;
+        case 2:
+            return Math.round(x * 100) / 100;
+        case 3:
+            return Math.round(x * 1000) / 1000;
+        default:
+            return Math.round(x);
+    }
+}
+
+export function sagittaOfArc(r, l) {
     /* s = r - sqrt(r^2 - l^2)
         s = Sagitta
         r = Raio da curvatura (2 * F)
         l = Metade do diametro da superficie (D/2)
     */
-    return Math.round(100 * (r - Math.sqrt(Math.pow(r, 2) - Math.pow(l, 2)))) / 100;
+    return Math.round(1000 * (r - Math.sqrt(Math.pow(r, 2) - Math.pow(l, 2)))) / 1000;
 }
+
+export function radiusOfArc(l, s) {
+    /* r = (s^2 + l^2)/2s
+        r = Raio da curvatura
+        l = Metade do diametro da superficie (D/2)
+        s = Sagitta
+    */
+    return Math.round(1000 * ((Math.pow(s, 2) + Math.pow(l, 2)) / (2 * s))) / 1000;
+}
+
+export function heightOfArcAnyPoint(s, r, x) {
+    /* h = s + sqrt(r^2 - x^2) - r
+        h = Altura do arco (3 casas decimais)
+        s = Sagitta
+        r = Raio da curvatura
+        x = Descolamento lateral do centro ao ponto em que desejar medir
+    */
+    return Math.round(1000 * (s + Math.sqrt(Math.pow(r, 2) - Math.pow(x, 2)) - r)) / 1000;
+}
+
+export function circumferenceOfArc(l, r) {
+    /* θ = 2 arcsin(l/r); c = θr
+        c = Comprimento (circuferência) do arco
+        l = Metade do diametro da superficie (D/2)
+        r = Raio da curvatura
+    */
+    return Math.round(1000 * ((2 * Math.asin(l / r)) * r)) / 1000;
+}
+
 
 export default class Cassegrain extends Component {
     constructor(props) {
@@ -16,12 +58,18 @@ export default class Cassegrain extends Component {
 
         this.defaultState = {
             d1: 152.5,
-            f1: 457.2,
-            dc: 3.99,
-            e: 150,
-            g: 4,
+            f1: 381.25, // 457.2,
+            dc: 3.33,   // 3.99,
+            e: 200,     // 150,
+            g: 4.8,     // 4,
+            alpha: 0,
+            beta: 0,
+            gama: 0,
+            delta: 0,
+            epsilon: 0,
             f1d1: 0,
             f2d1: 0,
+            type: 3,
             f2: 0,
             p1: 0,
             p2: 0,
@@ -29,6 +77,12 @@ export default class Cassegrain extends Component {
             r2: 0,
             tx: 0,
             s1: 0,
+            s2: 0,
+            E1: 0,
+            E2: 0,
+            S1: 0,
+            S2: 0,
+            S3: 0,
         }
 
         this.state = this.defaultState;
@@ -42,17 +96,57 @@ export default class Cassegrain extends Component {
         this.setState({...this.defaultState}, () => this.calculate());
     }
 
-    calculate = () => {       
-        var f1d1 = Math.round(10 * this.state.f1 / this.state.d1) / 10;
-        var f2d1 = Math.round((this.state.g * this.state.f1) / (this.state.d1));
-        var f2   = Math.round(this.state.d1 * f2d1);
-        var p1   = Math.round(10 * (this.state.f1 * 1 + this.state.e * 1) / (this.state.g * 1 + 1)) / 10;
-        var p2   = Math.round(10 * this.state.g * p1) / 10;
-        var d2   = Math.round(((this.state.d1 * p1) / (this.state.f1)) + this.state.dc * 1);
-        var r2   = Math.round((2 * p1 * this.state.g) / (1 * this.state.g - 1));
-        var tx   = Math.round(100 * d2 / this.state.d1) / 100;
-        var s1    = sagitta(this.state.f1*2, this.state.d1/2)
-        var s2    = sagitta(p2*2, d2/2)
+    calculate = () => {        
+        const { g, f1, d1, e, dc, type } = this.state;
+        var f1d1 = round(f1 / d1, 1);
+        var f2d1 = round((g * f1) / (d1));
+        var f2   = round(d1 * f2d1);
+        var p1   = round((f1 * 1 + e * 1) / (g * 1 + 1), 1);
+        var p2   = round(g * p1, 1);
+        var d2   = round(((d1 * p1) / (f1)) + dc * 1);
+        var r2   = round((2 * p1 * g) / (1 * g - 1));
+        var tx   = round(d2 / d1, 2);
+        var s1   = sagittaOfArc(f1*2, d1/2);
+        var s2   = sagittaOfArc(p2*2, d2/2);
+
+        var vm = (type === 1) ? -Math.abs(f2 / f1) : f2 / f1;
+        var ve = e / f1;
+        var vr = (vm - ve) / (vm + 1);
+
+        var alpha   = ((vm + 1) / (vm - 1)) ** 2;
+        var beta    = (vm - 1) ** 2 * (vm - 1) * (1 - vr) / (vm * vm * vm);
+        var gama    = (vm - 1) ** 2 * (vm - 1) * vr / (vm * vm * vm);
+        var delta   = 2 / (vm ** 2);
+        var epsilon = 4 * (vm - vr) / (vm ** 2 * (1 - vr));
+        var ni      = (vm - 1) ** 2 * (vm - 1) * vr ** 2 / (vm * vm * vm * (1 - vr));
+
+        var E1;
+        var E2;
+
+        if (type === 0 || type === 1) {
+            // Cassegrain and Gregorian
+            E1 = 1;
+            E2 = alpha;
+        }
+        else if (type === 2) {
+            // Ritchey-Chretien
+            E1 = 1 + (beta * delta / gama);
+            E2 = alpha + (delta / gama);
+        }
+        else if (type === 3) {
+            // Dall-Kirkham
+            E1 = 1 - alpha * beta;
+            E2 = 0;
+        }
+        else if (type === 4) {
+            // Pressmann-Camichel
+            E1 = 0;
+            E2 = alpha - (1 / beta);
+        }
+
+        var S1 = 1 - E1 - beta * (alpha - E2);
+        var S2 = delta + gama * (alpha - E2);
+        var S3 = epsilon - ni * (alpha - E2);
 
         this.setState({
             f1d1: f1d1,
@@ -65,14 +159,26 @@ export default class Cassegrain extends Component {
             tx: tx,
             s1: s1,
             s2: s2,
+            E1: round(E1, 3),
+            E2: round(E2, 3),
+            S1: round(S1, 3),
+            S2: round(S2, 3),
+            S3: round(S3, 3),
         });
     }
 
     onChangeField = (e) => {
         const { name, value } = e.target;
         this.setState({
-            [name]: value
+            [name]: value.replace(/,/g, '.')
         }, this.calculate);
+    }
+
+    onChangeTelescopeType = (e) => {
+        this.setState({
+            type: parseInt(e.target.value)
+        }, this.calculate)
+        e.preventDefault();
     }
 
     render() {
@@ -93,8 +199,8 @@ export default class Cassegrain extends Component {
                                     <th style={{borderTop: 'unset'}} colSpan="3" className="text-center">Parâmetros</th>
                                 </tr>
                                 <tr>
-                                    <th className="col-md-8">Parâmetros</th>
-                                    <th className="col-md-4">Dimensões</th>
+                                    <th>Parâmetros</th>
+                                    <th>Dimensões</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -117,6 +223,18 @@ export default class Cassegrain extends Component {
                                 <tr>
                                     <td>Valor de <b>g</b> (ɣ)</td>
                                     <td><input name="g" value={this.state.g} onChange={this.onChangeField} className="form-control" /></td>
+                                </tr>
+                                <tr>
+                                    <td>Tipo</td>
+                                    <td>
+                                        <select className="form-control" value={this.state.type} onChange={this.onChangeTelescopeType}>
+                                            <option value="0">Cassegrain</option>
+                                            <option value="1">Gregorian</option>
+                                            <option value="2">Ritchey-Chretien</option>
+                                            <option value="3">Dall-Kirkham</option>
+                                            <option value="4">Pressmann-Camichel</option>
+                                        </select>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -162,7 +280,7 @@ export default class Cassegrain extends Component {
                                     <td>Raio de curvatura do secundário; r2 (mm)</td>
                                     <td>{this.state.r2}</td>
                                 </tr>
-                                <tr>
+                                <tr className={(this.state.tx > 0.3) ? 'table-danger' : ''}>
                                     <td>Taxa de obstrução do secundário; Tx</td>
                                     <td>{this.state.tx}</td>
                                 </tr>
@@ -171,8 +289,24 @@ export default class Cassegrain extends Component {
                                     <td>{this.state.s1}</td>
                                 </tr>
                                 <tr>
-                                    <td>Sagitta; S2 (mm)</td>
-                                    <td>{this.state.s2}</td>
+                                    <td>Excentricidade do Espelho Primário</td>
+                                    <td>{this.state.E1}</td>
+                                </tr>
+                                <tr>
+                                    <td>Excentricidade do Espelho Secundário</td>
+                                    <td>{this.state.E2}</td>
+                                </tr>
+                                <tr>
+                                    <td>Coeficiente de Aberração Esférica</td>
+                                    <td>{this.state.S1}</td>
+                                </tr>
+                                <tr>
+                                    <td>Coeficiente de Coma</td>
+                                    <td>{this.state.S2}</td>
+                                </tr>
+                                <tr>
+                                    <td>Coeficiente de Astigmatismo</td>
+                                    <td>{this.state.S3}</td>
                                 </tr>
                             </tbody>
                         </table>
