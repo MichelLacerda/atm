@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Switch, NavLink } from "react-router-dom";
 import urls from "./urls";
 import './App.css';
 import Cassegrain from "./components/Cassegrain";
+import CassegrainAdv from "./components/CassegrainAdv";
 
 const Home = () => {
   return (
@@ -25,6 +26,9 @@ const Navigation = () => {
           <li className="nav-item">
             <NavLink to={urls.cassagrain} className="nav-link">Cassagrain</NavLink>
           </li>
+          <li className="nav-item">
+            <NavLink to={urls.cassagrainAdv} className="nav-link">Cassagrain Avançado</NavLink>
+          </li>
         </ul>
       </div>
     </nav>
@@ -36,10 +40,11 @@ class App extends Component {
     return (
       <BrowserRouter>
         <React.Fragment>
-          <Navigation />  
+          <Navigation />
           <Switch>
             <Route path={urls.home} component={Home} exact />
-            <Route path={urls.cassagrain} component={Cassegrain} />
+            <Route path={urls.cassagrain} component={Cassegrain} exact/>
+            <Route path={urls.cassagrainAdv} component={CassegrainAdv} exact/>
           </Switch>
         </React.Fragment>
       </BrowserRouter>

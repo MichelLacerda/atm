@@ -1,64 +1,15 @@
 import React, { Component } from 'react';
 import CassegrainDesenho from "../assets/imgs/j_23_06.gif";
 
-export function round(x, size) {
-    switch (size) {
-        case 1:
-            return Math.round(x * 10) / 10;
-        case 2:
-            return Math.round(x * 100) / 100;
-        case 3:
-            return Math.round(x * 1000) / 1000;
-        default:
-            return Math.round(x);
-    }
-}
-
-export function sagittaOfArc(r, l) {
-    /* s = r - sqrt(r^2 - l^2)
-        s = Sagitta
-        r = Raio da curvatura (2 * F)
-        l = Metade do diametro da superficie (D/2)
-    */
-    return Math.round(1000 * (r - Math.sqrt(Math.pow(r, 2) - Math.pow(l, 2)))) / 1000;
-}
-
-export function radiusOfArc(l, s) {
-    /* r = (s^2 + l^2)/2s
-        r = Raio da curvatura
-        l = Metade do diametro da superficie (D/2)
-        s = Sagitta
-    */
-    return Math.round(1000 * ((Math.pow(s, 2) + Math.pow(l, 2)) / (2 * s))) / 1000;
-}
-
-export function heightOfArcAnyPoint(s, r, x) {
-    /* h = s + sqrt(r^2 - x^2) - r
-        h = Altura do arco (3 casas decimais)
-        s = Sagitta
-        r = Raio da curvatura
-        x = Descolamento lateral do centro ao ponto em que desejar medir
-    */
-    return Math.round(1000 * (s + Math.sqrt(Math.pow(r, 2) - Math.pow(x, 2)) - r)) / 1000;
-}
-
-export function circumferenceOfArc(l, r) {
-    /* θ = 2 arcsin(l/r); c = θr
-        c = Comprimento (circuferência) do arco
-        l = Metade do diametro da superficie (D/2)
-        r = Raio da curvatura
-    */
-    return Math.round(1000 * ((2 * Math.asin(l / r)) * r)) / 1000;
-}
-
+import { round, sagittaOfArc } from "./Utils";
 
 export default class Cassegrain extends Component {
     constructor(props) {
         super(props);
 
         this.defaultState = {
-            d1: 152.5,
-            f1: 381.25, // 457.2,
+            d1: 152.4,
+            f1: 381, // 457.2,
             dc: 3.33,   // 3.99,
             e: 200,     // 150,
             g: 4.8,     // 4,
@@ -93,32 +44,32 @@ export default class Cassegrain extends Component {
     }
 
     cleaner = () => {
-        this.setState({...this.defaultState}, () => this.calculate());
+        this.setState({ ...this.defaultState }, () => this.calculate());
     }
 
-    calculate = () => {        
+    calculate = () => {
         const { g, f1, d1, e, dc, type } = this.state;
         var f1d1 = round(f1 / d1, 1);
         var f2d1 = round((g * f1) / (d1));
-        var f2   = round(d1 * f2d1);
-        var p1   = round((f1 * 1 + e * 1) / (g * 1 + 1), 1);
-        var p2   = round(g * p1, 1);
-        var d2   = round(((d1 * p1) / (f1)) + dc * 1);
-        var r2   = round((2 * p1 * g) / (1 * g - 1));
-        var tx   = round(d2 / d1, 2);
-        var s1   = sagittaOfArc(f1*2, d1/2);
-        var s2   = sagittaOfArc(p2*2, d2/2);
+        var f2 = round(d1 * f2d1);
+        var p1 = round((f1 * 1 + e * 1) / (g * 1 + 1), 1);
+        var p2 = round(g * p1, 1);
+        var d2 = round(((d1 * p1) / (f1)) + dc * 1);
+        var r2 = round((2 * p1 * g) / (1 * g - 1));
+        var tx = round(d2 / d1, 2);
+        var s1 = sagittaOfArc(f1 * 2, d1 / 2);
+        var s2 = sagittaOfArc(p2 * 2, d2 / 2);
 
         var vm = (type === 1) ? -Math.abs(f2 / f1) : f2 / f1;
         var ve = e / f1;
         var vr = (vm - ve) / (vm + 1);
 
-        var alpha   = ((vm + 1) / (vm - 1)) ** 2;
-        var beta    = (vm - 1) ** 2 * (vm - 1) * (1 - vr) / (vm * vm * vm);
-        var gama    = (vm - 1) ** 2 * (vm - 1) * vr / (vm * vm * vm);
-        var delta   = 2 / (vm ** 2);
+        var alpha = ((vm + 1) / (vm - 1)) ** 2;
+        var beta = (vm - 1) ** 2 * (vm - 1) * (1 - vr) / (vm * vm * vm);
+        var gama = (vm - 1) ** 2 * (vm - 1) * vr / (vm * vm * vm);
+        var delta = 2 / (vm ** 2);
         var epsilon = 4 * (vm - vr) / (vm ** 2 * (1 - vr));
-        var ni      = (vm - 1) ** 2 * (vm - 1) * vr ** 2 / (vm * vm * vm * (1 - vr));
+        var ni = (vm - 1) ** 2 * (vm - 1) * vr ** 2 / (vm * vm * vm * (1 - vr));
 
         var E1;
         var E2;
@@ -187,16 +138,16 @@ export default class Cassegrain extends Component {
                 <div className="row">
                     <div className="col-md-12 col-xs-12 text-center">
                         <a href="http://www.observatorio-phoenix.org/j_tele/j_23.htm" target="_blank" rel="noopener noreferrer">
-                            <img src={CassegrainDesenho} alt="" style={{maxWidth: "100%"}} />
+                            <img src={CassegrainDesenho} alt="" style={{ maxWidth: "100%" }} />
                         </a>
                     </div>
                 </div>
-                <div className="row" style={{marginTop: '2rem'}}>
+                <div className="row" style={{ marginTop: '2rem' }}>
                     <div className="col-md-6 col-xs-12">
                         <table className="table">
                             <thead>
                                 <tr>
-                                    <th style={{borderTop: 'unset'}} colSpan="3" className="text-center">Parâmetros</th>
+                                    <th style={{ borderTop: 'unset' }} colSpan="3" className="text-center">Parâmetros</th>
                                 </tr>
                                 <tr>
                                     <th>Parâmetros</th>
@@ -244,7 +195,7 @@ export default class Cassegrain extends Component {
                         <table className="table">
                             <thead>
                                 <tr>
-                                    <th style={{borderTop: 'unset'}} colSpan="3" className="text-center">Resultado</th>
+                                    <th style={{ borderTop: 'unset' }} colSpan="3" className="text-center">Resultado</th>
                                 </tr>
                                 <tr>
                                     <th>Parâmetros</th>
