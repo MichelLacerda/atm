@@ -6,6 +6,6 @@ function url(url) {
 
 export default {
     home: url('/'),
-    cassagrain: url('/cassagrain'),
-    cassagrainAdv: url('/cassagrain/adv'),
+    cassagrain: url('/cassagrain/'),
+    newtonian: url('/newtonian/'),
 }

@@ -169,6 +169,19 @@ export default class Cassegrain extends Component {
         e.preventDefault();
     }
 
+    setClassObstructionRate(tx) {
+        if (tx <= 0.3) {
+            return '';
+        } 
+        else if (tx > 0.3 && tx < 0.35) {
+            return 'table-warning';
+        }
+        else if (tx > 0.35) {
+            return 'table-danger';
+        }
+    }
+
+
     render() {
         return (
             <React.Fragment>
@@ -179,9 +192,10 @@ export default class Cassegrain extends Component {
                         </a>
                     </div>
                 </div>
+                <p>The late Harry Miller (Orange County Astronomers) used to say: "Cassegrains are a baffling problem."</p>
                 <div className="row" style={{ marginTop: '2rem' }}>
                     <div className="col-md-6 col-xs-12">
-                        <table className="table">
+                        <table className="table table-hover">
                             <thead>
                                 <tr>
                                     <th style={{ borderTop: 'unset' }} colSpan="3" className="text-center">Parâmetros</th>
@@ -197,7 +211,7 @@ export default class Cassegrain extends Component {
                                     <td><input name="D1" value={this.state.D1} onChange={this.onChangeField} className="form-control" /></td>
                                 </tr>
                                 <tr>
-                                    <td>D. Focal do primário; f1</td>
+                                    <td>Focal do primário; f1</td>
                                     <td><input name="F1" value={this.state.F1} onChange={this.onChangeField} className="form-control" /></td>
                                 </tr>
                                 <tr>
@@ -209,7 +223,7 @@ export default class Cassegrain extends Component {
                                     <td><input name="E" value={this.state.E} onChange={this.onChangeField} className="form-control" /></td>
                                 </tr>
                                 <tr>
-                                    <td>Gama (ɣ)</td>
+                                    <td>Fator de amplicação (ɣ)</td>
                                     <td><input name="G1" value={this.state.G1} onChange={this.onChangeField} className="form-control" /></td>
                                 </tr>
                                 <tr>
@@ -230,7 +244,7 @@ export default class Cassegrain extends Component {
                         <button className="btn btn-danger btn-block" onClick={this.cleaner}>Limpar</button>
                     </div>
                     <div className="col-md-6 col-xs-12">
-                        <table className="table">
+                        <table className="table table-hover">
                             <thead>
                                 <tr>
                                     <th style={{ borderTop: 'unset' }} colSpan="3" className="text-center">Resultado</th>
@@ -281,7 +295,7 @@ export default class Cassegrain extends Component {
                                     <td>Diâmetro para o campo U </td>
                                     <td>{this.state.D2}</td>
                                 </tr>
-                                <tr className={(this.state.TX > 0.3) ? 'table-danger' : ''}>
+                                <tr className={this.setClassObstructionRate(this.state.TX)}>
                                     <td>Taxa de obstrução</td>
                                     <td>{this.state.TX}</td>
                                 </tr>

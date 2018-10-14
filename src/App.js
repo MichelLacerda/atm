@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
 import { BrowserRouter, Route, Switch, NavLink } from "react-router-dom";
+
 import urls from "./urls";
 import './App.css';
 import Cassegrain from "./components/Cassegrain";
-import CassegrainAdv from "./components/CassegrainAdv";
+import Newtonian from "./components/Newtonian";
+
 
 const Home = () => {
   return (
@@ -26,9 +28,9 @@ const Navigation = () => {
           <li className="nav-item">
             <NavLink to={urls.cassagrain} className="nav-link">Cassagrain</NavLink>
           </li>
-          <li className="nav-item">
-            <NavLink to={urls.cassagrainAdv} className="nav-link">Cassagrain Avançado</NavLink>
-          </li>
+          {/* <li className="nav-item">
+            <NavLink to={urls.newtonian} className="nav-link">Newtoniano</NavLink>
+          </li> */}
         </ul>
       </div>
     </nav>
@@ -43,8 +45,8 @@ class App extends Component {
           <Navigation />
           <Switch>
             <Route path={urls.home} component={Home} exact />
-            <Route path={urls.cassagrain} component={Cassegrain} exact/>
-            <Route path={urls.cassagrainAdv} component={CassegrainAdv} exact/>
+            <Route path={urls.Cassegrain} component={Cassegrain} exact/>
+            <Route path={urls.newtonian} component={Newtonian} exact/>
           </Switch>
         </React.Fragment>
       </BrowserRouter>
